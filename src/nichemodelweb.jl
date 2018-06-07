@@ -24,16 +24,20 @@ function nichemodelweb(S,C)
     [adjmatrix[i,prey[i]] = true for i=1:S];
     
     ladj = size(adjmatrix)[1];
-    keep = find(!iszero,sum(adjmatrix,2));
+    keep = find(!iszero,vec(sum(adjmatrix,2))+vec(sum(adjmatrix,1)));
+    niche = n;
+    
     
     while length(keep) < ladj
         ladj = size(adjmatrix)[1];
-        keep = find(!iszero,sum(adjmatrix,2));
+        keep = find(!iszero,vec(sum(adjmatrix,2))+vec(sum(adjmatrix,1)));
         adjmatrix = adjmatrix[keep,keep];
+        niche = niche[keep];
     end
     
     
-    return adjmatrix
+    
+    return adjmatrix', niche
     
 end
 
