@@ -4,8 +4,8 @@ using Distributions
 using RCall
 # include("$(homedir())/Dropbox/PostDoc/2018_trophicspinglass/src/nichemodelweb.jl");
 # include("$(homedir())/Dropbox/PostDoc/2018_trophicspinglass/src/quantitativeweb.jl");
-include("$(homedir())2018_trophicspinglass/src/nichemodelweb.jl");
-include("$(homedir())2018_trophicspinglass/src/quantitativeweb.jl");
+include("$(homedir())/2018_trophicspinglass/src/nichemodelweb.jl");
+include("$(homedir())/2018_trophicspinglass/src/quantitativeweb.jl");
 
 
 
@@ -139,7 +139,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
 end
 endQ = copy(estQ);
 
-namespace = "$(homedir())2018_trophicspinglass/figures/errtemp.pdf";
+namespace = "$(homedir())/2018_trophicspinglass/figures/errtemp.pdf";
 R"""
 pdf($namespace,height = 6, width = 10)
 par(mfrow=c(1,2))
@@ -148,7 +148,7 @@ plot($tempvec)
 dev.off()
 """
 
-namespace = "$(homedir())2018_trophicspinglass/figures/tlerrQerr.pdf";
+namespace = "$(homedir())/2018_trophicspinglass/figures/tlerrQerr.pdf";
 R"""
 pdf($namespace,height = 6, width = 10)
 par(mfrow=c(1,2))
@@ -157,7 +157,7 @@ plot($Qerrvec,xlab='Annealing time',ylab='Interaction strength error',type='l',l
 dev.off()
 """
 
-namespace = "$(homedir())2018_trophicspinglass/figures/bacomp.pdf";
+namespace = "$(homedir())/2018_trophicspinglass/figures/bacomp.pdf";
 R"""
 par(mfrow=c(2,2))
 plot($obs_tl,$(tlvec[:,1]),xlab='True trophic level',ylab='Predicted trophic level',pch=16,cex=0.5)
