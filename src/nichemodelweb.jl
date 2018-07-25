@@ -37,7 +37,7 @@ function nichemodelweb(S,C)
     
     
     
-    return adjmatrix', niche
+    return adjmatrix, niche
     
 end
 

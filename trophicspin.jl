@@ -12,19 +12,19 @@ image($(A),col=grey(c(0,1)))
 
 
 S=500;
-C=0.002;
+C=0.02;
 # A,niche = smallwebs(S);
 A,niche = nichemodelweb(S,C);
 S=size(A)[1];
 tl = trophic(A); tlsp = sortperm(tl,rev=true); tlsort = tl[tlsp];
 Asort = A[tlsp,tlsp];
-tmax=50;
+tmax=500;
 #Predation coupling
-kout=5;
+kout=0.0000;
 #Consumption coupling
 kin=1;
 #Global influence of primary producers
-gprim = 0.0001;
+gprim = 0.000;
 #Noise
 sigma=0.001;
 @time s = cascade(Asort,kout,kin,gprim,sigma,tmax);
@@ -50,10 +50,15 @@ par(mfrow=c(1,2))
 image(x=$(collect(1:tmax)),y=$(collect(1:S)),$(s),col=c('black','white'))
 plot($(Delta[1,:]),type='l',ylim=c(min($Delta),max($Delta)),col=pal[1],lwd=2)
 """
-for i=2:tlout-1
+for i=tlout-1:-1:2
     R"lines($(Delta[i,:]),col=pal[$i],lwd=2)"
 end
 #Pattern of traveling peaks shows the cascade direction/strength
+
+
+
+
+
 
 t=50;
 plotweb(Asort,s[t,:],tlsort)
