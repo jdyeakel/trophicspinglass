@@ -32,11 +32,11 @@ obs_dN = ((obs_tl-1)*3.5).+(unifdist(0,sigmaN,S));
 #estimated trophic level from the Nitrogen isotopes
 est_tl = (obs_dN/3.5) + 1;
 
-R"""
-par(mfrow=c(1,2))
-plot($obs_tl,$obs_dN)
-plot($obs_tl,$est_tl)
-"""
+# R"""
+# par(mfrow=c(1,2))
+# plot($obs_tl,$obs_dN)
+# plot($obs_tl,$est_tl)
+# """
 
 #measure error
 function calcerror(Q,est_tl)
