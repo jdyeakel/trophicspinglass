@@ -1,11 +1,11 @@
-using LightGraphs
-using EcologicalNetwork
-using Distributions
-using RCall
+@everywhere using LightGraphs
+@everywhere using EcologicalNetwork
+@everywhere using Distributions
+@everywhere using RCall
 # include("$(homedir())/Dropbox/PostDoc/2018_trophicspinglass/src/nichemodelweb.jl");
 # include("$(homedir())/Dropbox/PostDoc/2018_trophicspinglass/src/quantitativeweb.jl");
-include("$(homedir())/2018_trophicspinglass/src/nichemodelweb.jl");
-include("$(homedir())/2018_trophicspinglass/src/quantitativeweb.jl");
+@everywhere include("$(homedir())/2018_trophicspinglass/src/nichemodelweb.jl");
+@everywhere include("$(homedir())/2018_trophicspinglass/src/quantitativeweb.jl");
 
 
 
@@ -55,7 +55,7 @@ end
 
 #Begin simulated annealing algorithm
 reps = 10000;
-temperature = 1000;
+temperature = 1;
 coolingrate = 0.1;
 links = find(!iszero,Q);
 tempvec = Array{Float64}(reps);
@@ -83,8 +83,8 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     end
     # estlinkstrength = estQ[links];
     #Modify link strengths based on temperature
-    # newdist = Normal(0,temperature); 
-    newdist = Normal(0,0.1);
+    newdist = Normal(0,temperature); 
+    # newdist = Normal(0,0.1);
     
     #for each species, modify links - 1, and scale the last
     newestQ = copy(estQ);
@@ -105,28 +105,67 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     
     #SIMULATED ANNEALING
     #Acceptance probability
-    prob = exp( (err - err_new) / temperature );
-    rdraw = rand();
-    if rdraw < prob
-        #Accept new changes
-        estQ = copy(newestQ);
-        err = copy(err_new);
-    end
-    #Adjust temperature
-    # temperature = temperature * (err_new/err);
-    temperature *= 1-coolingrate;
-    
-     
-    #METROPOLIS
-    #only accept changes if error is lowered
-    # if err_new <= err
-    #     #Adjust temperature
-    #     temperature = temperature * (err_new/err);
-    # 
+    # prob = exp( (err - err_new) / temperature );
+    # rdraw = rand();
+    # if rdraw < prob
     #     #Accept new changes
     #     estQ = copy(newestQ);
     #     err = copy(err_new);
     # end
+    # #Adjust temperature
+    # # temperature = temperature * (err_new/err);
+    # temperature *= 1-coolingrate;
+    # 
+     
+    #METROPOLIS
+    #only accept changes if error is lowered
+    err_old = copy(err);
+    if err_new <= err
+        #Adjust temperature
+        temperature = temperature * (err_new/err);
+    
+        #Accept new changes
+        estQ = copy(newestQ);
+        err = copy(err_new);
+    end
+    
+    sprob = exp( (err_old - err_new) / temperature );
+    sdraw = rand();
+    if sdraw < sprob
+        nproc = 4;
+        parerr = SharedArray{Float64}(nproc);
+        parnewestQvec = SharedArray{Float64}(nproc,size(Q)[1]);
+        parsp = SharedArray{Int64}(nproc);
+        @sync @parallel for p = 1:nproc
+            #Sample across processors
+            newdist = Normal(0,1);
+            
+            #for each species, modify links - 1, and scale the last
+            parnewestQ = copy(estQ);
+            
+            #Choose random consumer
+            consumers = find(x->x>1,length.(linksperspecies));
+            j = rand(consumers);
+            slinks = linksperspecies[j];
+            #choose link to alter
+            linktochange = rand(slinks);
+            parnewestQ[j,linktochange] = maximum([minimum([0.99,estQ[j,linktochange]*(1+rand(newdist))]),0.001]);
+            #rescale
+            parnewestQ[j,:] = parnewestQ[j,:]./(sum(parnewestQ[j,:]));
+
+            parpred_tl_new,parerr_new = calcerror(parnewestQ,est_tl);
+            parerr[p] = parerr_new;
+            parnewestQvec[p,:] = parnewestQ[j,:];
+            parsp[p] = j;
+        end
+        minparerr = findmin(parerr)[2];
+        if parerr[minparerr] < err
+            #Accept new changes
+            err = copy(err_new);
+            estQ[parsp[minparerr],:] = parnewestQvec[minparerr,:];
+        end
+    end
+            
     
     
     #record temperature
@@ -160,6 +199,7 @@ dev.off()
 namespace = "$(homedir())/2018_trophicspinglass/figures/bacomp.pdf";
 R"""
 par(mfrow=c(2,2))
+pdf($namespace,height = 10, width = 10)
 plot($obs_tl,$(tlvec[:,1]),xlab='True trophic level',ylab='Predicted trophic level',pch=16,cex=0.5)
 plot($obs_tl,$(tlvec[:,reps]),xlab='True trophic level',ylab='Predicted trophic level',pch=16,cex=0.5)
 plot($(Q[links]),$(startQ[links]),xlab='True interaction strengths',ylab='Predicted interaction strengths',pch=16,cex=0.5)
