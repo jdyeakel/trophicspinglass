@@ -132,7 +132,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     sprob = exp( (err_old - err_new) / temperature );
     sdraw = rand();
     if sdraw < sprob
-        nproc = 4;
+        nproc = 80;
         parerr = SharedArray{Float64}(nproc);
         parnewestQvec = SharedArray{Float64}(nproc,size(Q)[1]);
         parsp = SharedArray{Int64}(nproc);
