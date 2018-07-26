@@ -57,7 +57,7 @@ end
 
 #Begin simulated annealing algorithm
 reps = 10000;
-temperature = 1;
+temperature = 5;
 coolingrate = 0.1;
 links = find(!iszero,Q);
 tempvec = Array{Float64}(reps);
