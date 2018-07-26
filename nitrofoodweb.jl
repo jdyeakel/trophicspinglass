@@ -56,7 +56,7 @@ for i=1:S
 end
 
 #Begin simulated annealing algorithm
-reps = 5000;
+reps = 15000;
 temperature = 5;
 coolingrate = 0.1;
 links = find(!iszero,Q);
