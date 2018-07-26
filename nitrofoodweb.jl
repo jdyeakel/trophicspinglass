@@ -208,8 +208,8 @@ dev.off()
 
 namespace = "$(homedir())/2018_trophicspinglass/figures/bacomp.pdf";
 R"""
-par(mfrow=c(2,2))
 pdf($namespace,height = 10, width = 10)
+par(mfrow=c(2,2))
 plot($obs_tl,$(tlvec[:,1]),xlab='True trophic level',ylab='Predicted trophic level',pch=16,cex=0.5)
 plot($obs_tl,$(tlvec[:,reps]),xlab='True trophic level',ylab='Predicted trophic level',pch=16,cex=0.5)
 plot($(Q[links]),$(startQ[links]),xlab='True interaction strengths',ylab='Predicted interaction strengths',pch=16,cex=0.5)
