@@ -56,7 +56,7 @@ for i=1:S
 end
 
 #Begin simulated annealing algorithm
-reps = 10000;
+reps = 5000;
 temperature = 5;
 coolingrate = 0.1;
 links = find(!iszero,Q);
@@ -131,7 +131,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     err_old = copy(err);
     if err_new <= err
         #Adjust temperature
-        temperature = temperature * (err_new/err);
+        temperature = temperature * (err_new/(5*err));
     
         #Accept new changes
         estQ = copy(newestQ);
