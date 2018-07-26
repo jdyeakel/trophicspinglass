@@ -10,7 +10,7 @@
 
 
 #Build food web
-S=50;
+S=100;
 C=0.01;
 @time A,n = nichemodelweb(S,C);
 S = size(A)[1];
@@ -57,7 +57,7 @@ end
 
 #Begin simulated annealing algorithm
 reps = 15000;
-temperature = 5;
+temperature = 1;
 coolingrate = 0.1;
 links = find(!iszero,Q);
 tempvec = Array{Float64}(reps);
@@ -131,7 +131,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     err_old = copy(err);
     if err_new <= err
         #Adjust temperature
-        temperature = maximum([0.0001,temperature * ((err_new)/(err))]);
+        temperature = maximum([0.00001,temperature * ((err_new)/(err))]);
     
         #Accept new changes
         estQ = copy(newestQ);
