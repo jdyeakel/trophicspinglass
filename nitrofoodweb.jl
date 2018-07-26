@@ -39,7 +39,7 @@ est_tl = (obs_dN/3.5) + 1;
 # """
 
 #measure error
-function calcerror(Q,est_tl)
+@everywhere function calcerror(Q,est_tl)
     q = UnipartiteQuantiNetwork(Q);
     pred_tl = trophic_level(q);
     # err = mean(sqrt.((pred_tl .- est_tl).^2));
