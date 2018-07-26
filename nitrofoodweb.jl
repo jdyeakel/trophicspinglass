@@ -32,6 +32,8 @@ obs_dN = ((obs_tl-1)*3.5).+(unifdist(0,sigmaN,S));
 #estimated trophic level from the Nitrogen isotopes
 est_tl = (obs_dN/3.5) + 1;
 
+println("Rest easy: no loops here...")
+
 # R"""
 # par(mfrow=c(1,2))
 # plot($obs_tl,$obs_dN)
@@ -79,7 +81,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
 @time for i=2:reps
     
     if mod(i,100) == 0
-        println("iteration = ",i)
+        println("iteration = ",i,"; error = ",round(err,3),"; temp = ",round(temperature,3))
     end
     # estlinkstrength = estQ[links];
     #Modify link strengths based on temperature
@@ -91,13 +93,20 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     
     #Choose random consumer
     consumers = find(x->x>1,length.(linksperspecies));
-    j = rand(consumers);
-    slinks = linksperspecies[j];
-    #choose link to alter
-    linktochange = rand(slinks);
-    newestQ[j,linktochange] = maximum([minimum([0.99,estQ[j,linktochange]*(1+rand(newdist))]),0.001]);
-    #rescale
-    newestQ[j,:] = newestQ[j,:]./(sum(newestQ[j,:]));
+    
+    #Choose number of species to adjust based on temperature
+    numsp = minimum([length(consumers),maximum([1,Int64(round(20*temperature,0))])]);
+    sptoadjust = rand(consumers,numsp);
+    
+    for j=sptoadjust
+        slinks = linksperspecies[j];
+        #choose link to alter
+        linktochange = rand(slinks);
+        newestQ[j,linktochange] = maximum([minimum([0.99,estQ[j,linktochange]*(1+rand(newdist))]),0.001]);
+        #rescale
+        newestQ[j,:] = newestQ[j,:]./(sum(newestQ[j,:]));
+    end
+    
 
     pred_tl_new,err_new = calcerror(newestQ,est_tl);
     
@@ -129,43 +138,44 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
         err = copy(err_new);
     end
     
-    sprob = exp( (err_old - err_new) / temperature );
-    sdraw = rand();
-    if sdraw < sprob
-        nproc = 80;
-        parerr = SharedArray{Float64}(nproc);
-        parnewestQvec = SharedArray{Float64}(nproc,size(Q)[1]);
-        parsp = SharedArray{Int64}(nproc);
-        @sync @parallel for p = 1:nproc
-            #Sample across processors
-            newdist = Normal(0,1);
-            
-            #for each species, modify links - 1, and scale the last
-            parnewestQ = copy(estQ);
-            
-            #Choose random consumer
-            consumers = find(x->x>1,length.(linksperspecies));
-            j = rand(consumers);
-            slinks = linksperspecies[j];
-            #choose link to alter
-            linktochange = rand(slinks);
-            parnewestQ[j,linktochange] = maximum([minimum([0.99,estQ[j,linktochange]*(1+rand(newdist))]),0.001]);
-            #rescale
-            parnewestQ[j,:] = parnewestQ[j,:]./(sum(parnewestQ[j,:]));
-
-            parpred_tl_new,parerr_new = calcerror(parnewestQ,est_tl);
-            parerr[p] = parerr_new;
-            parnewestQvec[p,:] = parnewestQ[j,:];
-            parsp[p] = j;
-        end
-        minparerr = findmin(parerr)[2];
-        if parerr[minparerr] < err
-            #Accept new changes
-            err = copy(err_new);
-            estQ[parsp[minparerr],:] = parnewestQvec[minparerr,:];
-        end
-    end
-            
+    # #Parallelized annealing sampler
+    # sprob = exp( (err_old - err_new) / temperature );
+    # sdraw = rand();
+    # if sdraw < sprob
+    #     nproc = 80;
+    #     parerr = SharedArray{Float64}(nproc);
+    #     parnewestQvec = SharedArray{Float64}(nproc,size(Q)[1]);
+    #     parsp = SharedArray{Int64}(nproc);
+    #     @sync @parallel for p = 1:nproc
+    #         #Sample across processors
+    #         newdist = Normal(0,1);
+    # 
+    #         #for each species, modify links - 1, and scale the last
+    #         parnewestQ = copy(estQ);
+    # 
+    #         #Choose random consumer
+    #         consumers = find(x->x>1,length.(linksperspecies));
+    #         j = rand(consumers);
+    #         slinks = linksperspecies[j];
+    #         #choose link to alter
+    #         linktochange = rand(slinks);
+    #         parnewestQ[j,linktochange] = maximum([minimum([0.99,estQ[j,linktochange]*(1+rand(newdist))]),0.001]);
+    #         #rescale
+    #         parnewestQ[j,:] = parnewestQ[j,:]./(sum(parnewestQ[j,:]));
+    # 
+    #         parpred_tl_new,parerr_new = calcerror(parnewestQ,est_tl);
+    #         parerr[p] = parerr_new;
+    #         parnewestQvec[p,:] = parnewestQ[j,:];
+    #         parsp[p] = j;
+    #     end
+    #     minparerr = findmin(parerr)[2];
+    #     if parerr[minparerr] < err
+    #         #Accept new changes
+    #         err = copy(err_new);
+    #         estQ[parsp[minparerr],:] = parnewestQvec[minparerr,:];
+    #     end
+    # end
+    # 
     
     
     #record temperature
