@@ -131,7 +131,7 @@ Qerrvec[1] = sum((Q[links].-estQ[links]).^2);
     err_old = copy(err);
     if err_new <= err
         #Adjust temperature
-        temperature = temperature * (err_new/(5*err));
+        temperature = maximum([0.0001,temperature * ((2*err_new)/(err))]);
     
         #Accept new changes
         estQ = copy(newestQ);
