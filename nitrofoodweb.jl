@@ -65,10 +65,10 @@ tlvec = Array{Float64}(S,reps);
 errvec =  Array{Float64}(reps);
 Qerrvec = Array{Float64}(reps);
 #Randomly generate an initial guess
-# estQ = quantitativeweb(A);
-estQ = convert(Array{Float64},A);
-estQ[1:length(estQ)] = estQ[1:length(estQ)] .* (repeat(1./convert.(Float64,length.(linksperspecies)),outer=size(Q)[1]));
-estQ[find(isnan,estQ)] = 0;
+estQ = quantitativeweb(A);
+# estQ = convert(Array{Float64},A);
+# estQ[1:length(estQ)] = estQ[1:length(estQ)] .* (repeat(1./convert.(Float64,length.(linksperspecies)),outer=size(Q)[1]));
+# estQ[find(isnan,estQ)] = 0;
 startQ = copy(estQ);
 #Calculate the initial error
 pred_tl,err = calcerror(estQ,est_tl);
