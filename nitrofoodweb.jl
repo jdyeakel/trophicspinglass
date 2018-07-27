@@ -11,7 +11,7 @@
 
 #Build food web
 S=100;
-C=0.01;
+C=0.1;
 @time A,n = nichemodelweb(S,C);
 S = size(A)[1];
 #Set 'true' interaction strengths
