@@ -1,3 +1,7 @@
+using Distributed
+
+@everywhere using SharedArrays
+@everywhere using LinearAlgebra
 @everywhere using Distributions
 @everywhere using RCall
 @everywhere using LightGraphs

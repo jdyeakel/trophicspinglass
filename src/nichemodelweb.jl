@@ -16,21 +16,24 @@ function nichemodelweb(S,C)
     c = rand.(Uniform.(r/2,n));
     
     #Find species that fall within the range of each other
-    prey = Array{Array{Int64}}(S);
-    [prey[i] = find(x-> (x > c[i] - (r[i]/2) && x < c[i] + (r[i]/2)), n) for i=1:S];
+    prey = Array{Array{Int64}}(undef,S);
+    [prey[i] = findall(x-> (x > c[i] - (r[i]/2) && x < c[i] + (r[i]/2)), n) for i=1:S];
     
 
     adjmatrix = zeros(Bool,S,S);
-    [adjmatrix[i,prey[i]] = true for i=1:S];
+		for i=1:S
+    	adjmatrix[i,prey[i]] .= true;
+		end
+			
     
     ladj = size(adjmatrix)[1];
-    keep = find(!iszero,vec(sum(adjmatrix,2))+vec(sum(adjmatrix,1)));
+    keep = findall(!iszero,vec(sum(adjmatrix,dims=2))+vec(sum(adjmatrix,dims=1)));
     niche = n;
     
     
     while length(keep) < ladj
         ladj = size(adjmatrix)[1];
-        keep = find(!iszero,vec(sum(adjmatrix,2))+vec(sum(adjmatrix,1)));
+        keep = findall(!iszero,vec(sum(adjmatrix,dims=2))+vec(sum(adjmatrix,dims=1)));
         adjmatrix = adjmatrix[keep,keep];
         niche = niche[keep];
     end

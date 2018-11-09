@@ -3,7 +3,7 @@ function cascade(A,kout,kin,gprim,sigma,tmax)
     # A,niche = nichemodelweb(S,C);
     n = size(A)[1];
     
-    s = Array{Int64}(tmax,n);
+    s = Array{Int64}(undef,tmax,n);
     #Define initial state
     s0 = rand([-1,1],n);
     s[1,:] = s0;

@@ -5,7 +5,7 @@ function trophic(A)
     rtl<-TrophInd($(A'))
     """
     @rget rtl;
-    tl = Array(rtl[1]) - 1;
+    tl = rtl[:TL]; #Array(undef,rtl[1]) - 1;
     return tl
 end
 
