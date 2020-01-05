@@ -1,3 +1,6 @@
+using Distributed
+using DataFrames
+
 @everywhere using LightGraphs
 @everywhere using EcologicalNetwork
 @everywhere using Distributions
@@ -14,12 +17,14 @@ S=100;
 C=0.05;
 @time A,n = nichemodelweb(S,C);
 S = size(A)[1];
+
+
 #Set 'true' interaction strengths
 Q = quantitativeweb(A);
 
+#NOTE: THIS PART IS BROKEN NOW
 g = UnipartiteNetwork(A);
-q = UnipartiteQuantiNetwork(Q);
-
+q = UnipartiteQuantitativeNetwork(Q);
 tl = fractional_trophic_level(g);
 #The observed trophic level of species weighted based on assigned prop contr food to diet in Q
 obs_tl = trophic_level(q);

@@ -32,10 +32,12 @@ function cascade(A,kout,kin,gprim,sigma,tmax)
             
             if length(nn_in) == 0
                 g = gprim;
+            else
+                g = 0;
             end
             
             #Spin function
-            newstate = sign(-kout*sum(past_s[nn_out]) + kin*sum(past_s[nn_in]) + sigma*rand(epsilondist) + g);
+            newstate = sign(past_s[i] - kout*sum(past_s[nn_out]) + kin*sum(past_s[nn_in]) + sigma*rand(epsilondist) + g);
             
             # newstate = sign(-kin*sum(past_s[nn_in]) + sigma*rand(epsilondist));
             
